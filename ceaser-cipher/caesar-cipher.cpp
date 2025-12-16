@@ -28,9 +28,9 @@ int main() {
 
     for (int i = 0; i < input.length(); i++) {
         if (isupper(input[i])) {
-            input[i] = (char) (input[i]-'A'-k)%26 + 'A';
+            input[i] = (char) (input[i]-'A'-k+26)%26 + 'A';
         } else {
-            input[i] = (char) (input[i]-'a'-k)%26 + 'a';
+            input[i] = (char) (input[i]-'a'-k+26)%26 + 'a';
         }
     }
     cout << "Decrypted text: " << input << endl;

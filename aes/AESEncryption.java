@@ -1,6 +1,3 @@
-import java.util.Arrays;
-import java.util.Scanner;
-
 public class AESEncryption {
     private final int Nk, Nr;
     private final byte[] roundKey;
@@ -12,8 +9,6 @@ public class AESEncryption {
         else throw new IllegalArgumentException("Key must be 16, 24, or 32 bytes");
         roundKey = keyExpansion(key);
     }
-
-    /* ======================= PUBLIC API ======================= */
 
     public byte[] encryptBlock(byte[] in) {
         byte[][] s = toState(in);
@@ -30,8 +25,6 @@ public class AESEncryption {
         invShiftRows(s); invSubBytes(s); addRoundKey(s,0);
         return fromState(s);
     }
-
-    /* ======================= CORE ======================= */
 
     private byte[][] toState(byte[] in){
         byte[][] s=new byte[4][4];
@@ -82,8 +75,6 @@ public class AESEncryption {
         }
     }
 
-    /* ======================= KEY SCHEDULE ======================= */
-
     private byte[] keyExpansion(byte[] key){
         int words=4*(Nr+1);
         byte[] w=new byte[words*4];
@@ -103,8 +94,6 @@ public class AESEncryption {
     private byte[] rotWord(byte[] w){ return new byte[]{w[1],w[2],w[3],w[0]}; }
     private byte[] subWord(byte[] w){ for(int i=0;i<4;i++) w[i]=(byte)SBOX[w[i]&0xFF]; return w; }
 
-    /* ======================= GF(2^8) ======================= */
-
     private byte mul2(byte b){ int x=b&0xFF; x=(x<<1)^((x&0x80)!=0?0x1B:0); return (byte)x; }
     private byte mul3(byte b){ return (byte)(mul2(b)^b); }
     private byte mul9(byte b){ return (byte)(mul2(mul2(mul2(b)))^b); }
@@ -122,8 +111,6 @@ public class AESEncryption {
         for(int i=0;i<4;i++) r[(i+n)%4]=a[i];
         return r;
     }
-
-    /* ======================= TABLES ======================= */
 
     private static final int[] SBOX = {
         0x63,0x7C,0x77,0x7B,0xF2,0x6B,0x6F,0xC5,0x30,0x01,0x67,0x2B,0xFE,0xD7,0xAB,0x76,
@@ -166,40 +153,4 @@ public class AESEncryption {
     private static final byte[] RCON = {
         0x00,0x01,0x02,0x04,0x08,0x10,0x20,0x40,(byte)0x80,0x1B,0x36
     };
-
-    /* PADDING */
-
-    public static byte[] pad(byte[] in) {
-        int pad = 16 - (in.length % 16);
-        byte[] out = Arrays.copyOf(in, in.length + pad);
-        for(int i=in.length;i<out.length;i++) out[i]=(byte)pad;
-        return out;
-    }
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        try {
-            System.out.print("Enter key: ");
-            byte[] key = sc.nextLine().getBytes("UTF-8");
-            System.out.print("Enter message: ");
-            byte[] msg = sc.nextLine().getBytes("UTF-8");
-            key = Arrays.copyOf(key, 16);
-            AESEncryption aes = new AESEncryption(key, 1);
-            byte[] padded = pad(msg);
-            byte[] cipher = new byte[padded.length];
-
-            for(int i=0;i<padded.length;i+=16)
-                System.arraycopy(aes.encryptBlock(Arrays.copyOfRange(padded,i,i+16)),0,cipher,i,16);
-            System.out.println("Encrypted: "+Arrays.toString(cipher));
-
-            byte[] plain = new byte[cipher.length];
-            for(int i=0;i<cipher.length;i+=16)
-                System.arraycopy(aes.decryptBlock(Arrays.copyOfRange(cipher,i,i+16)),0,plain,i,16);
-            int p = plain[plain.length-1] & 0xFF;
-            plain = Arrays.copyOf(plain, plain.length-p);
-            System.out.println("Decrypted: "+new String(plain,"UTF-8"));
-                    } catch (Exception e) {
-            e.printStackTrace();
-        }
-        sc.close();
-    }
 }

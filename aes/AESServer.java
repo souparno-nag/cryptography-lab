@@ -22,11 +22,16 @@ public class AESServer {
 
             while (true) {
                 int mode = in.readInt();
+                if (mode == 0) {
+                    socket.close();
+                    serverSocket.close();
+                    System.out.println("Connection closed");
+                    return;
+                }
                 int clen = in.readInt();
                 byte[] cipher = new byte[clen];
                 in.readFully(cipher);
                 
-                if (clen == 0) break;
                 
                 int klen = in.readInt();
                 byte[] key = new byte[klen];
@@ -41,9 +46,6 @@ public class AESServer {
                 plain = Arrays.copyOf(plain, plain.length-p);
                 System.out.println("Decrypted: "+new String(plain,"UTF-8"));
             }
-            socket.close();
-            serverSocket.close();
-            System.out.println("\nServer closed");
         } catch (Exception e) {
             System.out.println("Client error: " + e.getMessage());
             e.printStackTrace();

@@ -365,8 +365,8 @@ public class SHA_Hash_Algorithm {
         int[] sizes = {10, 100, 1000, 10000, 100000};
         String key = "secretkey123";
         
-        System.out.println("Message Size | SHA-1 Time (ms) | SHA-256 Time (ms) | SHA-1 Result (first 8 chars)");
-        System.out.println("-------------|-----------------|-------------------|----------------------------");
+        System.out.println("Message Size | SHA-1 Time (ms) | SHA-256 Time (ms) | SHA-1 Result (first 8 chars) | SHA-2 Result (first 8 chars)");
+        System.out.println("-------------|-----------------|-------------------|------------------------------|----------------------------");
         
         for (int size : sizes) {
             // Create message of specific size
@@ -383,8 +383,8 @@ public class SHA_Hash_Algorithm {
             long time2 = (System.nanoTime() - start2) / 1_000_000; // Convert to ms
             
             // Display results
-            System.out.printf("%6d bytes | %15d | %17d | %s\n", 
-                size, time1, time2, hmac1.substring(0, 8));
+            System.out.printf("%6d bytes | %15d | %17d | %28s | %25s\n", 
+                size, time1, time2, hmac1.substring(0, 8), hmac2.substring(0, 8));
         }
     }
     public static void main(String[] args) {

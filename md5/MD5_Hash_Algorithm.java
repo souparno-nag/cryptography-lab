@@ -168,6 +168,12 @@ public class MD5_Hash_Algorithm {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
+        System.out.print("Enter the key: ");
+        String key = sc.nextLine();
+        System.out.print("Enter the message: ");
+        String msg = sc.nextLine();
+        String mac = generateMAC(key, msg);
+        System.out.println("MAC: " + mac);
         sc.close();
     }
 }

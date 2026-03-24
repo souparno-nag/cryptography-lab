@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Flask Implementation</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 50px auto; padding: 20px; }
+        .box { border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        input { display: block; width: 90%; margin-bottom: 10px; padding: 8px; }
+        button { padding: 10px 15px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px;}
+        button:hover { background: #0056b3; }
+        #responseArea { margin-top: 15px; color: #333; font-family: monospace; background: #f4f4f4; padding: 10px; }
+    </style>
+</head>
+<body>
+
+    <h2>JWT Demo</h2>
+
+    <div class="box">
+        <h3>1. Login</h3>
+        <input type="text" id="username" placeholder="Username (e.g., admin)" required>
+        <input type="password" id="password" placeholder="Password (e.g., password123)" required>
+        <button onclick="login()">Login & Get Token</button>
+    </div>
+
+    <div class="box">
+        <h3>2. Access Protected Data</h3>
+        <p>Click below to request secure data using the stored token.</p>
+        <button onclick="getProtectedData()" style="background: #28a745;">Fetch Protected Route</button>
+    </div>
+
+    <div id="responseArea">Awaiting action...</div>
+
+    <script>
+        const responseArea = document.getElementById('responseArea');
+
+        // Function to handle login
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Store the JWT in localStorage
+                    localStorage.setItem('jwt_token', data.token);
+                    responseArea.innerHTML = "Login successful!<br>Token saved to localStorage.";
+                } else {
+                    responseArea.innerHTML = "Login failed: " + data.message;
+                }
+            } catch (error) {
+                responseArea.innerHTML = "Error during login.";
+            }
+        }
+
+        // Function to access protected route
+        async function getProtectedData() {
+            // Retrieve the token from localStorage
+            const token = localStorage.getItem('jwt_token');
+
+            if (!token) {
+                responseArea.innerHTML = "No token found! Please login first.";
+                return;
+            }
+
+            try {
+                const response = await fetch('/protected', {
+                    method: 'GET',
+                    headers: {
+                        // Attach the token to the Authorization header
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    responseArea.innerHTML = `<strong>Server says:</strong> ${data.message}<br><strong>Data:</strong> ${data.data}`;
+                } else {
+                    responseArea.innerHTML = `<strong>Access Denied:</strong> ${data.message}`;
+                    // Optionally clear the token if it's expired/invalid
+                    if(response.status === 401) {
+                        localStorage.removeItem('jwt_token');
+                    }
+                }
+            } catch (error) {
+                responseArea.innerHTML = "Error fetching protected data.";
+            }
+        }
+    </script>
+</body>
+</html>
